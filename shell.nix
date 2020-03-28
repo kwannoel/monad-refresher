@@ -2,7 +2,8 @@
 
 with pkgs;
 
-mkShell {
+stdenv.mkDerivation {
+  name = "haskell-env";
   buildInputs = [
     ghcid ghc
   ];
