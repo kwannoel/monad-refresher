@@ -11,27 +11,27 @@
 
 **Applicatives**
 
-| Law          | definition                                   |
-|--------------|----------------------------------------------|
-| identity     | pure id <*> v = v                            |
-| composition  | pure (.) <*> u <*> v <*> w = u <*> (v <*> w) |
-| homomorphism | pure f <*> pure x = pure (f x)               |
-| interchange  | u <*> pure y = pure ($ y) <*> u              |
+| Law          | definition                                     |
+|--------------|------------------------------------------------|
+| identity     | `pure id <*> v = v`                            |
+| composition  | `pure (.) <*> u <*> v <*> w = u <*> (v <*> w)` |
+| homomorphism | `pure f <*> pure x = pure (f x)`               |
+| interchange  | `u <*> pure y = pure ($ y) <*> u`              |
 
 **Monads**
 
-| Law            | definition                               |
-|----------------|------------------------------------------|
-| left identity  | return a >>= f == f a                    |
-| right identity | m >>= return == m                        |
-| associativity  | (m >>= f) >>= g = m >>= (\x -> fx >>= g) |
+| Law            | definition                                 |
+|----------------|--------------------------------------------|
+| left identity  | `return a >>= f == f a`                    |
+| right identity | `m >>= return == m`                        |
+| associativity  | `(m >>= f) >>= g = m >>= (\x -> fx >>= g)` |
 
 **Monad Transformers**
 
-| Law           | definition                             |
-|---------------|----------------------------------------|
-| identity      | lift . return = return                 |
-| associativity | lift (m >>= f) = lift m >>= (lift . f) |
+| Law | definition                               |
+|-----|------------------------------------------|
+| #1  | `lift . return = r`eturn                 |
+| #2  | `lift (m >>= f) = lift m >>= (lift . f)` |
 
 References:
 
