@@ -21,8 +21,8 @@
 
 | Law            | definition                                 |
 |----------------|--------------------------------------------|
-| left identity  | `return a >>= f == f a`                    |
-| right identity | `m >>= return == m`                        |
+| left identity  | `return a >>= f = f a`                     |
+| right identity | `m >>= return = m`                         |
 | associativity  | `(m >>= f) >>= g = m >>= (\x -> fx >>= g)` |
 
 **Monad Transformers**
@@ -31,6 +31,11 @@
 |-----|------------------------------------------|
 | #1  | `lift . return = return`                 |
 | #2  | `lift (m >>= f) = lift m >>= (lift . f)` |
+
+## Questions I had
+
+**Why is readerT defined as `r -> m a` instead of `m (r -> a)`**
+
 
 ## References:
 

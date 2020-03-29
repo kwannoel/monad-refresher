@@ -48,6 +48,7 @@ instance Monad (State s) where
                                       (a2, s2) = m2 s1
                                   in (a2, s2)
 
+-- Use monad transformers to compose monads
 class MonadTrans t where
     lift :: Monad m => m a -> t m a
 
@@ -86,4 +87,59 @@ instance Monoid r => MonadTrans (WriterT r) where
     lift = WriterT . fmap return
 
 instance (Monoid r, MonadIO m) => MonadIO (WriterT r m) where
+    liftIO = lift . liftIO
+
+data ReaderT r m a = ReaderT { runReaderT :: r -> m a }
+
+instance Functor m => Functor (ReaderT r m) where
+    fmap f rma = ReaderT $ \r -> f <$> runReaderT rma r
+
+instance Applicative m => Applicative (ReaderT r m) where
+    pure a = ReaderT $ \_ -> pure a
+    mf <*> ma = ReaderT $ \r -> let mf' = runReaderT mf r
+                                    ma' = runReaderT ma r
+                                in  mf' <*> ma'
+
+instance Monad m => Monad (ReaderT r m) where
+    -- ma :: r -> m a
+    -- f  :: a -> r -> m b
+    ma >>= f = ReaderT $ \r -> let ma' = runReaderT ma r
+                                   f'  = fmap (\re -> runReaderT re r) f
+                               in  ma' >>= f'
+
+instance MonadTrans (ReaderT r) where
+    lift = ReaderT . const
+
+instance MonadIO m => MonadIO (ReaderT r m) where
+    liftIO = lift . liftIO
+
+data StateT s m a = StateT { runStateT :: s -> m (a, s) }
+
+instance Functor m => Functor (StateT r m) where
+    fmap f = StateT . (fmap . fmap) (\(a, s) -> (f a, s)) . runStateT
+
+instance Monad m => Applicative (StateT r m) where
+    pure a = StateT $ \s -> pure (a, s)
+    -- sf :: s -> m (f, s)
+    -- sa :: s -> m (a, s)
+    sf <*> sa = StateT $ \s -> let f = runStateT sf
+                                   a = runStateT sa
+
+                                   mfs = f s
+                                   fsmas = \(f1, s1) -> let mas = a s1
+                                                        in  fmap (\(a1, s') -> (f1 a1, s')) mas
+
+                               in  mfs >>= fsmas
+
+instance Monad m => Monad (StateT r m) where
+    -- st :: s -> m (a, s)
+    -- f :: a -> s -> m (b, s)
+    st >>= f = StateT $ \s -> let mas = runStateT st s
+                                  f' = \(a1, s1) -> runStateT (f a1) s1
+                              in  mas >>= f'
+
+instance MonadTrans (StateT r) where
+    lift m = StateT $ \s -> fmap (\a -> (a, s)) m
+
+instance MonadIO m => MonadIO (StateT r m) where
     liftIO = lift . liftIO
