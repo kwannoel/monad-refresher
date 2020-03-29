@@ -32,11 +32,6 @@
 | #1  | `lift . return = return`                 |
 | #2  | `lift (m >>= f) = lift m >>= (lift . f)` |
 
-## Questions I had
-
-**Why is readerT defined as `r -> m a` instead of `m (r -> a)`**
-Transformers should wrap the structure `m` around the **value / final result** we can get.
-
 ## References:
 
 http://dev.stephendiehl.com/hask/#monad-transformers
