@@ -1,49 +1,3 @@
-{- |
-
-Laws of functors:
-
-1. identity
-
->>> fmap id = id
-
-2. composition
-
->>> fmap (f . g) = fmap f . fmap g
-
-Laws of Applicatives:
-
-1. identity
-
->>> pure id <*> v = v
-
-2. composition
-
->>> pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-
-3. homomorphism
-
->>> pure f <*> pure x = pure (f x)
-
-4. interchange
-
->>> u <*> pure y = pure ($ y) <*>
-
-Laws of monads:
-
-1. left identity:
-
->>> return a >>= f == f a
-
-2. right identity
-
->>> m >>= return == m
-
-3. associativity:
-
->>> (m >>= f) >>= g = m >>= (\x -> fx >>= g)
-
--}
-
 module Lib where
 
 data Writer r a = Writer (r, a)
@@ -76,7 +30,6 @@ instance Monad (Reader r) where
                                           b = rb r
                                       in  b
 
-
 data State s a = State (s -> (a, s))
 
 instance Functor (State s) where
@@ -95,4 +48,42 @@ instance Monad (State s) where
                                       (a2, s2) = m2 s1
                                   in (a2, s2)
 
-data WriterT
+class MonadTrans t where
+    lift :: Monad m => m a -> t m a
+
+class Monad m => MonadIO m where
+    liftIO :: IO a -> m a
+
+instance MonadIO IO where
+    liftIO = id
+
+data WriterT r m a = WriterT { runWriterT :: m (r, a) }
+
+instance Functor m => Functor (WriterT r m) where
+    fmap f (WriterT mra) = WriterT $ fmap (\(r, a) -> (r, f a)) mra
+
+instance (Applicative m, Monoid r) => Applicative (WriterT r m) where
+    pure a = WriterT $ pure (mempty, a)
+    -- Originally theres 2 layers of structure
+    -- s.t. its structure looks like m (r, f)
+    -- in order for the applicative operator to work
+    -- it has to follow to type signature of (<*>)
+    -- (<*>) :: f (a -> b) -> f a -> f b
+    -- so we have to transform m (r, f) into the form m (a -> b)
+    WriterT mf <*> WriterT ma = WriterT $ fmap f mf <*> ma
+      where f (r, f) = \(r2, a) -> (r <> r2, f a)
+
+instance (Monad m, Monoid r) => Monad (WriterT r m) where
+    WriterT ma >>= f = WriterT $ ma >>= f'
+      -- a -> m (r, b)
+      -- into
+      -- (r, a) -> m (r, b)
+      where f' = \(r, a) -> let g = \(r2, a) -> (r <> r2, a)
+                                mb' = runWriterT $ f a
+                            in fmap g mb'
+
+instance Monoid r => MonadTrans (WriterT r) where
+    lift = WriterT . fmap return
+
+instance (Monoid r, MonadIO m) => MonadIO (WriterT r m) where
+    liftIO = lift . liftIO
