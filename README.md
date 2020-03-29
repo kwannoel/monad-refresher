@@ -2,68 +2,39 @@
 *Best way to learn something is to do it.*
 
 # Laws
-Laws of functors:
+**functors**
 
-1. identity
+| Law         | definition                       |
+|-------------|----------------------------------|
+| identity    | `fmap id = id`                   |
+| composition | `fmap (f . g) = fmap f . fmap g` |
 
-``` haskell
-fmap id = id
-```
+**Applicatives**
 
+| Law          | definition                                   |
+|--------------|----------------------------------------------|
+| identity     | pure id <*> v = v                            |
+| composition  | pure (.) <*> u <*> v <*> w = u <*> (v <*> w) |
+| homomorphism | pure f <*> pure x = pure (f x)               |
+| interchange  | u <*> pure y = pure ($ y) <*> u              |
 
-2. composition
+**Monads**
 
-``` haskell
-fmap (f . g) = fmap f . fmap g
-```
+| Law            | definition                               |
+|----------------|------------------------------------------|
+| left identity  | return a >>= f == f a                    |
+| right identity | m >>= return == m                        |
+| associativity  | (m >>= f) >>= g = m >>= (\x -> fx >>= g) |
 
+**Monad Transformers**
 
-Laws of Applicatives:
-
-1. identity
-
-``` haskell
-pure id <*> v = v
-```
-
-2. composition
-
-``` haskell
-pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
-```
-
-3. homomorphism
-
-``` haskell
-pure f <*> pure x = pure (f x)
-```
-
-4. interchange
-
-``` haskell
-u <*> pure y = pure ($ y) <*>
-```
-
-Laws of monads:
-
-1. left identity:
-
-``` haskell
-return a >>= f == f a
-```
-
-2. right identity
-
-``` haskell
-m >>= return == m
-```
-
-3. associativity:
-
-``` haskell
-(m >>= f) >>= g = m >>= (\x -> fx >>= g)
-```
+| Law           | definition                             |
+|---------------|----------------------------------------|
+| identity      | lift . return = return                 |
+| associativity | lift (m >>= f) = lift m >>= (lift . f) |
 
 References:
+
 http://dev.stephendiehl.com/hask/#monad-transformers
+
 https://haskellbook.com/
