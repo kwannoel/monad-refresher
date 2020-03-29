@@ -35,10 +35,12 @@
 ## Questions I had
 
 **Why is readerT defined as `r -> m a` instead of `m (r -> a)`**
-
+Transformers should wrap the structure `m` around the **value / final result** we can get.
 
 ## References:
 
 http://dev.stephendiehl.com/hask/#monad-transformers
 
 https://haskellbook.com/
+
+https://stackoverflow.com/questions/23342184/difference-between-monad-and-applicative-in-haskell
