@@ -1,7 +1,6 @@
 # monad-refresher
-*Best way to learn something is to do it.*
 
-# Laws
+## Laws
 **functors**
 
 | Law         | definition                       |
@@ -30,10 +29,10 @@
 
 | Law | definition                               |
 |-----|------------------------------------------|
-| #1  | `lift . return = r`eturn                 |
+| #1  | `lift . return = return`                 |
 | #2  | `lift (m >>= f) = lift m >>= (lift . f)` |
 
-References:
+## References:
 
 http://dev.stephendiehl.com/hask/#monad-transformers
 
